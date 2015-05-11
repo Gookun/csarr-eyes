@@ -1,5 +1,5 @@
-#ifndef _ROBOT_EYE_I2C.H_h
-#define _ROBOT_EYE_I2C_h
+#ifndef _ROBOT_EYE_I2C_H
+#define _ROBOT_EYE_I2C_H
 
 #define I2C_ROBOT_EYE_ADDRESS 40
 
@@ -23,5 +23,12 @@
 #define I2C_MODE_HEART	40
 
 #define I2C_CONFUSE 50
+
+#define I2C_XL320_OPEN_21 21
+#define I2C_XL320_OPEN_22 22
+#define I2C_XL320_OPEN_23 23
+#define I2C_XL320_OPEN_24 24
+#define I2C_XL320_CLOSE_ALL 25
+
 
 #endif

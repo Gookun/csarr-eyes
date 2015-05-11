@@ -3,8 +3,9 @@
 #include "Max72xxPanel.h"
 #include "robot_eye_i2c.h"
 #include <Wire.h>
+#include <XL320.h>
 
-
+int xl320_latency_workaround = 20;
 
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
 int numberOfHorizontalDisplays = 6;
@@ -70,12 +71,38 @@ int8_t
 static const uint8_t PROGMEM img[] = {B00000000, B00000000, B00000000, B01111110, B01111110, B00000000, B00000000, B00000000};
 
 void setup() {
+	XL320.begin();
+	delay(1000);
+	XL320.setJointTorque(21,512);
+	delay(xl320_latency_workaround);
+	XL320.setJointTorque(22,512);
+	delay(xl320_latency_workaround);
+	XL320.setJointTorque(23,512);
+	delay(xl320_latency_workaround);
+	XL320.setJointTorque(24,512);
+	delay(xl320_latency_workaround);
+	XL320.TorqueON(21);
+	delay(xl320_latency_workaround);
+	XL320.TorqueON(22);
+	delay(xl320_latency_workaround);
+	XL320.TorqueON(23);
+	delay(xl320_latency_workaround);
+	XL320.TorqueON(24);
+	delay(xl320_latency_workaround);
+	default_position();
+	XL320.LED(21, 5);
+	delay(xl320_latency_workaround);
+	XL320.LED(22, 5);
+	delay(xl320_latency_workaround);
+	XL320.LED(23, 5);
+	delay(xl320_latency_workaround);
+	XL320.LED(24, 5);
+	delay(xl320_latency_workaround);
 	randomSeed(analogRead(A0));
 	Wire.begin(I2C_ROBOT_EYE_ADDRESS);
 	Wire.onReceive(receiveI2CEvent);
 	Wire.onRequest(sendResponse);
 	matrix.setIntensity(1); // Use a value between 0 and 15 for brightness
-    Serial.begin(115200);
 }
 
 void loop() {
@@ -100,15 +127,11 @@ void loop() {
 	default:
 		break;
 	}
-        
-
 }
 
 void receiveI2CEvent(int howMany)
 {
-        Serial.print("event :");
 	int x = Wire.read();    // receive byte as an integer
-        Serial.println(x);
 	switch(x){
 	// ALL PASSTHROUGH (as only random as defined xD)
 	case I2C_LOOK_MIDDLE:
@@ -138,8 +161,15 @@ void receiveI2CEvent(int howMany)
 	case I2C_CONFUSE:
 		currentMode = CONFUSE;
 		break;
+	case I2C_XL320_OPEN_21:
+	case I2C_XL320_OPEN_22:
+	case I2C_XL320_OPEN_23:
+	case I2C_XL320_OPEN_24:	
+		open_xl320(x);
+		break;
+	case I2C_XL320_CLOSE_ALL:
+		close_all();
 	}
-
 }
 
 void sendResponse(){
@@ -216,8 +246,6 @@ void text_mode_perform(){
 
 		delay(wait-10);	
 	}
-        
-        
 }
 
 void heart_mode_perform(){
@@ -269,4 +297,27 @@ void confuse_mode_perform(){
 
 void reset_countdown(){
 	countdown_index = 9;
+}
+
+void default_position(){
+	open_xl320(21);
+	open_xl320(22);
+	open_xl320(23);
+	open_xl320(24);
+}
+
+void close_all(){
+	XL320.moveJoint(21, 600);
+	delay(xl320_latency_workaround);
+	XL320.moveJoint(22, 420);
+	delay(xl320_latency_workaround);
+	XL320.moveJoint(23, 600);
+	delay(xl320_latency_workaround);
+	XL320.moveJoint(24, 420);
+	delay(xl320_latency_workaround);
+}
+
+void open_xl320(int id){
+	XL320.moveJoint(id, 512);
+	delay(xl320_latency_workaround);
 }
