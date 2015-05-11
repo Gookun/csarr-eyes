@@ -146,7 +146,6 @@ void sendResponse(){
 	//only for debug.
 	Wire.write(currentMode);
 }
-}
 
 void eye_mode_perform(){
 	if(millis() >= last_image_timestamp + wait){
